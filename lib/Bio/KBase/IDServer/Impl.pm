@@ -39,7 +39,7 @@ sub _init_instance
 
     if (!$host)
     {
-	$host = "mongodb.kbase.us";
+	$host = "localhost";
 	warn "No deployment configuration found; falling back to $host";
     }
 

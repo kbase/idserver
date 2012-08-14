@@ -5,7 +5,7 @@ use Test::More tests => 52;
 use Data::Dumper;
 use String::Random;
 
-use IDServerAPIClient;
+use Bio::KBase::IDServer::Client;
 my $obj;
 my $return;
 my @id_keys;
@@ -13,13 +13,13 @@ my @id_keys;
 #
 #  Test 1 - Can a new object be created without parameters? 
 #
-$obj = IDServerAPIClient->new(); # create a new object
+$obj = Bio::KBase::IDServer::Client->new(); # create a new object
 ok( defined $obj, "Did an object get defined" );               
 
 #
 #  Test 2 - Is the object in the right class?
 #
-isa_ok( $obj, 'IDServerAPIClient', "Is it in the right class" );   
+isa_ok( $obj, 'Bio::KBase::IDServer::Client', "Is it in the right class" );   
 
 #
 #  Test 3 - Can the object do all of the methods
@@ -36,14 +36,14 @@ can_ok($obj, qw[    kbase_ids_to_external_ids
 #  Test 4 - Can a new object be created with valid parameter? 
 #
 
-my $id_server_url = "http://localhost:5000/";
+my $id_server_url = "http://localhost:7031/";
 #my $id_server_url = "http://bio-data-1.mcs.anl.gov/services/idserver";
-my $id_server = IDServerAPIClient->new($id_server_url);
+my $id_server = Bio::KBase::IDServer::Client->new($id_server_url);
 ok( defined $id_server, "Did an object get defined" );               
 #
 #  Test 5 - Is the object in the right class?
 #
-isa_ok( $id_server, 'IDServerAPIClient', "Is it in the right class" );   
+isa_ok( $id_server, 'Bio::KBase::IDServer::Client', "Is it in the right class" );   
 
 #
 #  METHOD: external_ids_to_kbase_ids
