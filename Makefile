@@ -8,6 +8,7 @@ SERVICE_MODULE = lib/Bio/KBase/IDServer/Service.pm
 SERVICE = idserver
 SERVICE_PORT = 7031
 
+TPAGE = $(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/tpage
 TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --define kb_service_name=$(SERVICE) \
 	--define kb_service_port=$(SERVICE_PORT)
 
