@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 52;
+use Test::More tests => 59;
 use Data::Dumper;
 use String::Random;
 
@@ -48,6 +48,7 @@ isa_ok( $id_server, 'Bio::KBase::IDServer::Client', "Is it in the right class" )
 #
 #  METHOD: external_ids_to_kbase_ids
 #
+note("Test   external_ids_to_kbase_ids");
 
 my $test_kbase_id = '';
 my $test_seed_id  = 'fig|1000565.3.peg.4';
@@ -79,43 +80,45 @@ $return = $id_server->external_ids_to_kbase_ids('SEED', [$test_seed_id, 'fig|833
 is(ref($return), 'HASH', "Use Valid data: external_ids_to_kbase_ids returns a hash");
 
 @id_keys = keys(%$return);
-print Dumper($return);
-is(scalar @id_keys, 2, "Use Valid data: hash is not empty and has two keys");
+#print Dumper($return);
+isnt(scalar @id_keys, 0, "Use Valid data: hash is not empty");
 
-#-- Tests 14 and 15 - Are the return values scalar.  
+#-- Tests 14 Is the return value scalar.  
 foreach (@id_keys)
 {
 #	print "$_\t$return->{$_}\n";
 	is(ref($return->{$_}), '', "Is the return value scalar for $_?");
+	last;
 }
 
 #
 #  METHOD: kbase_ids_to_external_ids
 #
+note("Test  kbase_ids_to_external_ids");
 
-#-- Tests 16 and 17 - Too many and too few parameters
+#-- Tests 15 and 16 - Too many and too few parameters
 eval {$return = $id_server->kbase_ids_to_external_ids('SEED',['kb|g.3.peg.2394.?']);  };
 isnt($@, undef, 'Call with too many parameters failed properly');
 
 eval {$return = $id_server->kbase_ids_to_external_ids();  };
 isnt($@, undef, 'Call with too few parameters failed properly');
 
-#-- Tests 18 and 19 - Use invalid data.  Expect empty hash to be returned
+#-- Tests 17 and 18 - Use invalid data.  Expect empty hash to be returned
 $return = $id_server->kbase_ids_to_external_ids(['kb|g.3.peg.2394.?']);
 is(ref($return), 'HASH', "Use InValid data: external_ids_to_kbase_ids returns a hash");
 
 is(keys(%$return), 0, "Give no input: Hash is empty -- No warning");
 
-#-- Tests 20 and 21 - Use Valid data.  Expect hash with data to be returned
+#-- Tests 19 and 20 - Use Valid data.  Expect hash with data to be returned
 $return = $id_server->kbase_ids_to_external_ids([$test_kbase_id]);
 is(ref($return), 'HASH', "Use Valid data: external_ids_to_kbase_ids returns a hash");
 
 @id_keys = keys(%$return);
 is(scalar @id_keys, 1, "Use Valid data: hash has one element");
 
-#-- Tests 22-24 
-#   22 is the return an array
-#   23 and 24 are the two items in the array the external_db and external_id  
+#-- Tests 21-23 
+#   21 is the return an array
+#   22 and 23 are the two items in the array the external_db and external_id  
 foreach (@id_keys)
 {
 	is(ref($return->{$_}), 'ARRAY', "Is the return value scalar for $_?");
@@ -124,9 +127,10 @@ foreach (@id_keys)
 
 }
 
-#-- Tests 25 and 26 - Use Array with both Valid and invalid data.  
+#-- Tests 24 and 25 - Use Array with both Valid and invalid data.  
  #  Expect hash with data to be returned
 $return = $id_server->kbase_ids_to_external_ids(['kb|g.3.peg.2394', 'kb|g.3.peg.3335', '3']);
+print Dumper($return);
 
 is(ref($return), 'HASH', "Use Valid data: external_ids_to_kbase_ids returns a hash");
 
@@ -136,15 +140,16 @@ is(scalar @id_keys, 2, "Use Valid data: hash is not empty");
 #
 #  METHOD: register_ids
 #
+note("Test  register_ids");
 
-#-- Tests 27 and 28 - Too many and too few parameters
+#-- Tests 26 and 27 - Too many and too few parameters
 eval {$return = $id_server->register_ids('SEED','SEED','SEED','SEED');  };
 isnt($@, undef, 'Call with too many parameters failed properly');
 
 eval {$return = $id_server->register_ids('SEED','SEED');  };
 isnt($@, undef, 'Call with too few parameters failed properly');
 
-#-- Tests 29 and 30 -  Test with a valid ID from above
+#-- Tests 28 and 29 -  Test with a valid ID from above
 #   Expect a return KBase that was found above (no double registration)
 #   Expect one key to the hash and its value is known
 $return = $id_server->register_ids('TEST','SEED',[$test_seed_id]);
@@ -153,13 +158,13 @@ is(ref($return), 'HASH', "Register_ids returns a hash");
 @id_keys = keys(%$return);
 is(scalar @id_keys, 1, "Use Valid data: hash has one element");
 
-#-- Tests  31 and 32
+#-- Tests  30 and 31
 #   Are the return values correct?
 
 is($id_keys[0], $test_seed_id, 'Is the key the ID that was registered');
 is($return->{$id_keys[0]}, $test_kbase_id, "Is the value the associated KBASE ID");
 
-#-- Tests 33 and 34 -  Test with a valid ID from above but the database is wrong
+#-- Tests 32 and 33 -  Test with a valid ID from above but the database is wrong
 #   Expect a new KBase ID
 
 $return = $id_server->register_ids('TEST','seed',[$test_seed_id]);
@@ -168,7 +173,7 @@ is(ref($return), 'HASH', "Register_ids returns a hash");
 @id_keys = keys(%$return);
 is(scalar @id_keys, 1, "Use Valid data: hash has one element");
 
-#-- Tests  35-36
+#-- Tests  34-35
 #   Test what was returned.  Needs to be new registration ID, not the one above
 foreach (@id_keys)
 {
@@ -183,7 +188,7 @@ foreach (@id_keys)
 $return = $id_server->register_ids('TEST','SEED',['XXXXX']);
 @id_keys = keys(%$return);
 
-#-- Tests  37-41 - With new bogus data, get back what we asked for
+#-- Tests  36-40 - With new bogus data, get back what we asked for
 
 foreach (@id_keys)
 {
@@ -205,28 +210,30 @@ foreach (@id_keys)
 #
 #  METHOD: allocate_id_range
 #
+note("Test allocate_id_range");
 
-#-- Tests 42 and 43 - Too many and too few parameters
+#-- Tests 41 and 42 - Too many and too few parameters
 eval {$return = $id_server->allocate_id_range('SEED','SEED','SEED');  };
 isnt($@, '', 'Call with too many parameters failed properly');
 
 eval {$return = $id_server->allocate_id_range('SEED');  };
 isnt($@, '', 'Call with too few parameters failed properly');
 
+#-- Tests 43-44 invalid and valid numberic parameter
 eval {$return = $id_server->allocate_id_range('SEED','XX');  };
 isnt($@, '', 'Second parameter needs to be a number');
 
 eval {$return = $id_server->allocate_id_range('SEED',3);  };
 is($@, '', 'Second parameter needs to be a number');
 
-#-- Tests 46
+#-- Tests 45
 $return = $id_server->allocate_id_range('TEST',2);
 is(ref($return), '', "Register_ids returns a scalar");
 
 my $return_test = $return;
 $return_test    =~ s/\d+//g;
 
-#-- Tests 47 - Must be a number
+#-- Tests 46 - Must be a number
 is($return_test, '', 'The return was a number');
 $return_test = $return + 1;
 my $test_hash = { 'external_id1'=> $return, 'external_id2'=> $return_test };
@@ -234,7 +241,9 @@ my $test_hash = { 'external_id1'=> $return, 'external_id2'=> $return_test };
 #
 #  METHOD: register_allocated_ids
 #
-#-- Tests 48 and 49 - Too many and too few parameters
+note("Test register_allocated_ids");
+
+#-- Tests 47 and 48 - Too many and too few parameters
 eval {$return = $id_server->register_allocated_ids('SEED','SEED','SEED','SEED');  };
 isnt($@, undef, 'Call with too many parameters failed properly');
 
@@ -243,7 +252,7 @@ isnt($@, undef, 'Call with too few parameters failed properly');
 
 $return = $id_server->register_allocated_ids('TEST','SEED', $test_hash); 
 
-#-- Tests 50-53 - Test the data just added
+#-- Tests 49-52 - Test the data just added
 $return = $id_server->kbase_ids_to_external_ids(["TEST.$return_test"]);
 
 @id_keys = keys(%$return);
@@ -264,22 +273,18 @@ foreach (@id_keys)
 $test_hash =  { 'external_id6' => 11111, 'external_id7' => 22222,  'external_id8' => 33333, 'external_id9' => 44444 };
 $return = $id_server->register_allocated_ids('TEST','SEED', $test_hash); 
 
-#-- Tests 54-55 - Test the data just added
-$return = $id_server->kbase_ids_to_external_ids(["TEST.11111"]);
+#-- Tests 53 - Test data that is invalid
+$return = $id_server->kbase_ids_to_external_ids(["TEST.1111"]);
 @id_keys = keys(%$return);
-is(scalar @id_keys, 1, "Return one key if asking for 11111");
-foreach (@id_keys)
-{
-        isnt($return->{$_}->[1], 'external_id6', "Is the external_id external_id6 - This wasn't allocated");
-}
+is(scalar @id_keys, 0, "Return zero keys if asking for invalid 1111");
 
-#-- Tests 56-57 - Test the data just added
+#-- Tests 54-55 - Test the data just added
 $return = $id_server->kbase_ids_to_external_ids(["TEST.44444"]);
 @id_keys = keys(%$return);
 is(scalar @id_keys, 1, "Return one key if asking for 44444");
 foreach (@id_keys)
 {
-        isnt($return->{$_}->[1], 'external_id9', "Is the external_id external_id9 - This wasn't allocated");
+        is($return->{$_}->[1], 'external_id9', "Is the external_id external_id9 - This was allocated");
 }
 
 my $foo = 'NAN';
@@ -287,16 +292,16 @@ my $foo = 'NAN';
 $test_hash =  { 'external_id' => $foo };
 $return = $id_server->register_allocated_ids('TEST','SEED', $test_hash); 
 
-#-- Tests 58-59 - Test the data just added
+#-- Tests 56-57 - Test the data just added
 $return = $id_server->kbase_ids_to_external_ids(["TEST.$foo"]);
 @id_keys = keys(%$return);
 is(scalar @id_keys, 1, "Return one key when asking for NAN");
 foreach (@id_keys)
 {
-        isnt($return->{$_}->[1], 'external_id', "Is the external_id external_id6 - This wasn't allocated");
+        is($return->{$_}->[1], 'external_id', "Used TEST.$foo and returned external_id (non-numeric test)");
 }
 
-#-- Tests 60-61 - Test the data just added
+#-- Tests 59-59 - Test the data just added
 $foo = new String::Random;
 my $foo2 = $foo->randregex('\d\d\d\d\d\d\d\d\d'); 
 
@@ -307,5 +312,5 @@ $return = $id_server->kbase_ids_to_external_ids(["TEST.$foo2"]);
 is(scalar @id_keys, 1, "Return one key when asking for large random number");
 foreach (@id_keys)
 {
-        isnt($return->{$_}->[1], 'external_id', "Is the external_id external_id6 - This wasn't allocated");
+        is($return->{$_}->[1], 'external_id', "Used TEST.$foo2 and returned external_id (large random number test)");
 }
