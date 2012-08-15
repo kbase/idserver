@@ -36,7 +36,7 @@ deploy-monit:
 	$(TPAGE) $(TPAGE_ARGS) service/process.$(SERVICE).tt > $(TARGET)/services/$(SERVICE)/process.$(SERVICE)
 
 deploy-doc:
-	$(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/IDServerAPIImpl.pm > doc/idserver_api.html
+	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/IDServerAPIImpl.pm > doc/idserver_api.html
 	cp doc/*html $(SERVICE_DIR)/webroot/.
 
 include $(TOP_DIR)/tools/Makefile.common.rules
