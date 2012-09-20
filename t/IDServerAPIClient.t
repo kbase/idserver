@@ -129,13 +129,13 @@ foreach (@id_keys)
 
 #-- Tests 24 and 25 - Use Array with both Valid and invalid data.  
  #  Expect hash with data to be returned
-$return = $id_server->kbase_ids_to_external_ids(['kb|g.3.peg.2394', 'kb|g.3.peg.3335', '3']);
-print Dumper($return);
+$return = $id_server->kbase_ids_to_external_ids([$test_kbase_id,$test_kbase_id, '3']);
+#print Dumper($return);
 
 is(ref($return), 'HASH', "Use Valid data: external_ids_to_kbase_ids returns a hash");
 
 @id_keys = keys(%$return);
-is(scalar @id_keys, 2, "Use Valid data: hash is not empty");
+is(scalar @id_keys, 1, "Use Valid data: hash is not empty");
 
 #
 #  METHOD: register_ids
