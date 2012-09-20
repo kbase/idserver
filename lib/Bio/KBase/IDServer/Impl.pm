@@ -207,8 +207,8 @@ sub external_ids_to_kbase_ids
     my($return);
     #BEGIN external_ids_to_kbase_ids
             
-my $n = @$ext_ids;
-print STDERR "$$ start find on $n\n";
+	my $n = @$ext_ids;
+#	print STDERR "$$ start find on $n\n";
     my $iter = $self->coll_data->find({ ext_name => $external_db, ext_id => { '$in' => $ext_ids }});
     $return = {};
 
@@ -216,7 +216,7 @@ print STDERR "$$ start find on $n\n";
     {
 	$return->{$ent->{ext_id}} = $ent->{kb_id};
     }
-print STDERR "$$ finish find on $n\n";
+#	print STDERR "$$ finish find on $n\n";
 
     #END external_ids_to_kbase_ids
     return($return);
@@ -301,7 +301,8 @@ sub register_ids
 	delete $to_allocate{$id};
     }
 
-    print STDERR "After initial check " . Dumper(\%to_allocate, $return);
+	print STDERR "This is a check that this version is being user\n";
+#    print STDERR "After initial check " . Dumper(\%to_allocate, $return);
             
     #
     # Do an atomic MongoDB findAndModify to increment the next_val by
@@ -330,7 +331,7 @@ sub register_ids
 	die "MongoDB error $res->{err}";
     }
 
-    print Dumper($res);
+#    print Dumper($res);
     
     my $start = $res->{value}->{next_val};
 
