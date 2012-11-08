@@ -38,5 +38,16 @@ deploy-monit:
 deploy-doc:
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/IDServerAPIImpl.pm > doc/idserver_api.html
 	cp doc/*html $(SERVICE_DIR)/webroot/.
+	
+compile-typespec:
+	compile_typespec \
+		-impl Bio::KBase::IDServer::Impl \
+		-service Bio::KBase::IDServer::Service \
+		-psgi IDServer.psgi \
+		-client Bio::KBase::IDServer::Client \
+		-js ./javascript/IDServer \
+		-py ./biokbase/idserver/IDServer \
+		./spec/IDServer-API.spec \
+		./lib
 
 include $(TOP_DIR)/tools/Makefile.common.rules
