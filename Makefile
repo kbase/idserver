@@ -1,5 +1,7 @@
 TOP_DIR = ../..
 include $(TOP_DIR)/tools/Makefile.common
+DEPLOY_RUNTIME ?= /kb/runtime
+TARGET ?= /kb/deployment
 
 SERVER_SPEC = IDServer-API.spec
 
@@ -25,12 +27,11 @@ $(SERVICE_MODULE): $(SERVER_SPEC)
 
 bin: $(BIN_PERL)
 
-deploy: deploy-service
+deploy: deploy-client
+deploy-all: deploy-service deploy-client
+deploy-client: deploy-docs
 
-deploy-service: deploy-dir-service deploy-scripts deploy-libs deploy-services deploy-monit deploy-docs
-deploy-client: deploy-scripts deploy-libs  deploy-docs
-
-deploy-services:
+deploy-service: deploy-monit
 	$(TPAGE) $(TPAGE_ARGS) service/start_service.tt > $(TARGET)/services/$(SERVICE)/start_service
 	chmod +x $(TARGET)/services/$(SERVICE)/start_service
 	$(TPAGE) $(TPAGE_ARGS) service/stop_service.tt > $(TARGET)/services/$(SERVICE)/stop_service
@@ -59,7 +60,7 @@ test: test-client
 # to the test-client target if it makes sense to you. This test
 # example assumes there is already a tested running server.
 test-client:
-        # run each test
+	# run each test
 	for t in $(CLIENT_TESTS) ; do \
 		if [ -f $$t ] ; then \
 			$(DEPLOY_RUNTIME)/bin/perl $$t ; \
