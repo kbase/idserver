@@ -40,7 +40,7 @@ deploy-monit:
 	$(TPAGE) $(TPAGE_ARGS) service/process.$(SERVICE).tt > $(TARGET)/services/$(SERVICE)/process.$(SERVICE)
 
 deploy-docs:
-	# Refresh comments in .pms from typespec
+	# Refresh comments in .pms from typespec (is that dangerous? Might the developers have changed the .pms in place?)
 	./recompile_typespec
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/Bio/KBase/IDServer/Service.pm > doc/idserver_service_api.html
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Service Client API" lib/Bio/KBase/IDServer/Client.pm > doc/idserver_client_api.html
