@@ -8,6 +8,12 @@ SERVICE_MODULE = lib/Bio/KBase/IDServer/Service.pm
 SERVICE = idserver
 SERVICE_PORT = 7031
 
+# Needed if we are using Makefile directly, instead of from
+# the dev_container
+DEPLOY_RUNTIME ?= /kb/runtime
+TARGET ?= /kb/deployment
+SERVICE_DIR ?= $(TARGET)/services/$(SERVICE)
+
 # You can change these if you are putting your tests somewhere
 # else or if you are not using the standard .t suffix
 CLIENT_TESTS = $(wildcard t/*.t)

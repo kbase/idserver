@@ -18,7 +18,10 @@ our %return_counts = (
         'register_ids' => 1,
         'allocate_id_range' => 1,
         'register_allocated_ids' => 0,
+        'version' => 1,
 );
+
+
 
 sub _build_valid_methods
 {
@@ -29,33 +32,45 @@ sub _build_valid_methods
         'register_ids' => 1,
         'allocate_id_range' => 1,
         'register_allocated_ids' => 1,
+        'version' => 1,
     };
     return $methods;
 }
 
 sub call_method {
     my ($self, $data, $method_info) = @_;
+
     my ($module, $method) = @$method_info{qw(module method)};
     
     my $ctx = Bio::KBase::IDServer::ServiceContext->new(client_ip => $self->_plack_req->address);
     
     my $args = $data->{arguments};
-    if (@$args == 1 && ref($args->[0]) eq 'HASH')
-    {
-	my $actual_args = $args->[0]->{args};
-	my $token = $args->[0]->{auth_token};
-	$data->{arguments} = $actual_args;
-	
-	
-        # Service IDServerAPI does not require authentication.
-	
-    }
+
+    # Service IDServerAPI does not require authentication.
     
     my $new_isa = $self->get_package_isa($module);
     no strict 'refs';
     local @{"${module}::ISA"} = @$new_isa;
     local $CallContext = $ctx;
-    my @result = $module->$method(@{ $data->{arguments} });
+    my @result;
+    {
+	my $err;
+	eval {
+	    @result = $module->$method(@{ $data->{arguments} });
+	};
+	if ($@)
+	{
+	    #
+	    # Reraise the string version of the exception because
+	    # the RPC lib can't handle exception objects (yet).
+	    #
+	    my $err = $@;
+	    my $str = "$err";
+	    $str =~ s/Bio::KBase::CDMI::Service::call_method.*//s;
+	    $str =~ s/^/>\t/mg;
+	    die "The JSONRPC server invocation of the method \"$method\" failed with the following error:\n" . $str;
+	}
+    }
     my $result;
     if ($return_counts{$method} == 1)
     {
@@ -136,7 +151,7 @@ is available via $context->client_ip.
 
 use base 'Class::Accessor';
 
-__PACKAGE__->mk_accessors(qw(user client_ip));
+__PACKAGE__->mk_accessors(qw(user_id client_ip authenticated));
 
 sub new
 {
