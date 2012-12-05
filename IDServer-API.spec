@@ -1,12 +1,12 @@
 /*
-The KBase ID provides access to the mappings between KBase identifiers and
-external identifiers, the original identifiers for data that was migrated from
-other databases into the KBase.
+The KBase ID server provides access to the mappings between KBase identifiers and
+external identifiers (the original identifiers for data that was migrated from
+other databases into KBase).
 */
 module IDServerAPI : IDServerAPI
 {
 /* 
-A KBase ID is string starting with the characters "kb|".
+A KBase ID is a string starting with the characters "kb|".
 
 KBase IDs are typed. The types are designated using a short string. For instance,
 "g" denotes a genome, "fp" denotes a feature representing a protein-encoding gene, etc.
