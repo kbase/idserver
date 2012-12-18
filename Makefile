@@ -8,6 +8,9 @@ SERVER_SPEC = IDServer-API.spec
 SERVICE_MODULE = lib/Bio/KBase/IDServer/Service.pm
 
 SERVICE = idserver
+SERVICE_NAME = IDServer
+SERVICE_PSGI_FILE = $(SERVICE_NAME).psgi
+SERVICE_NAME_PY = idserver
 SERVICE_PORT = 7031
 
 # Needed if we are using Makefile directly, instead of from
@@ -54,6 +57,21 @@ deploy-docs:
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Service Client API" lib/Bio/KBase/IDServer/Client.pm > doc/idserver_client_api.html
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Servicer API" lib/Bio/KBase/IDServer/Impl.pm > doc/idserver_impl_api.html
 	cp doc/*html $(SERVICE_DIR)/webroot/.
+	
+compile-typespec:
+	mkdir -p lib/biokbase/$(SERVICE_NAME_PY)
+	touch lib/biokbase/__init__.py #do not include code in biokbase/__init__.py
+	touch lib/biokbase/$(SERVICE_NAME_PY)/__init__.py 
+	mkdir -p lib/javascript/$(SERVICE_NAME)
+	compile_typespec \
+		--psgi $(SERVICE_PSGI_FILE) \
+		--impl Bio::KBase::$(SERVICE_NAME)::Impl \
+		--service Bio::KBase::$(SERVICE_NAME)::Service \
+		--client Bio::KBase::$(SERVICE_NAME)::Client \
+		--py biokbase/$(SERVICE_NAME_PY)/client \
+		--js javascript/$(SERVICE_NAME)/Client \
+		$(SERVER_SPEC) lib
+	rm -r Bio # For some strange reason, compile_typespec always creates this directory in the root dir!
 
 include $(TOP_DIR)/tools/Makefile.common.rules
 
