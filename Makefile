@@ -36,7 +36,7 @@ $(SERVICE_MODULE): $(SERVER_SPEC)
 
 bin: $(BIN_PERL)
 
-deploy: deploy-client
+deploy: deploy-client deploy-service
 deploy-all: deploy-service deploy-client
 deploy-service: deploy-dir-service deploy-scripts deploy-libs deploy-services deploy-monit deploy-docs
 deploy-client: deploy-scripts deploy-libs  deploy-docs
@@ -51,6 +51,9 @@ deploy-monit:
 	$(TPAGE) $(TPAGE_ARGS) service/process.$(SERVICE).tt > $(TARGET)/services/$(SERVICE)/process.$(SERVICE)
 
 deploy-docs:
+	-mkdir doc
+	-mkdir $(SERVICE_DIR)
+	-mkdir $(SERVICE_DIR)/webroot
 	# Refresh comments in .pms from typespec (is that dangerous? Might the developers have changed the .pms in place?)
 	./recompile_typespec
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/Bio/KBase/IDServer/Service.pm > doc/idserver_service_api.html
