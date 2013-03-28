@@ -29,17 +29,14 @@ TPAGE_ARGS = --define kb_top=$(TARGET) --define kb_runtime=$(DEPLOY_RUNTIME) --d
 
 all: bin server
 
-server: $(SERVICE_MODULE)
-
-$(SERVICE_MODULE): $(SERVER_SPEC)
-	./recompile_typespec 
+server: compile-typespec
 
 bin: $(BIN_PERL)
 
 deploy: deploy-client deploy-service
 deploy-all: deploy-service deploy-client
-deploy-service: deploy-dir-service deploy-scripts deploy-libs deploy-services deploy-monit deploy-docs
-deploy-client: deploy-scripts deploy-libs  deploy-docs
+deploy-service: compile-typespec  deploy-dir-service deploy-scripts deploy-libs deploy-services deploy-monit deploy-docs
+deploy-client: compile-typespec deploy-scripts deploy-libs deploy-docs
 
 deploy-services: deploy-monit
 	$(TPAGE) $(TPAGE_ARGS) service/start_service.tt > $(TARGET)/services/$(SERVICE)/start_service
@@ -50,12 +47,11 @@ deploy-services: deploy-monit
 deploy-monit:
 	$(TPAGE) $(TPAGE_ARGS) service/process.$(SERVICE).tt > $(TARGET)/services/$(SERVICE)/process.$(SERVICE)
 
-deploy-docs:
+deploy-docs: compile-typespec
+	# Refresh comments in .pms from typespec (is that dangerous? Might the developers have changed the .pms in place?)
 	-mkdir doc
 	-mkdir $(SERVICE_DIR)
 	-mkdir $(SERVICE_DIR)/webroot
-	# Refresh comments in .pms from typespec (is that dangerous? Might the developers have changed the .pms in place?)
-	./recompile_typespec
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Server API" lib/Bio/KBase/IDServer/Service.pm > doc/idserver_service_api.html
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Service Client API" lib/Bio/KBase/IDServer/Client.pm > doc/idserver_client_api.html
 	$(DEPLOY_RUNTIME)/bin/perl $(DEPLOY_RUNTIME)/bin/pod2html -t "ID Servicer API" lib/Bio/KBase/IDServer/Impl.pm > doc/idserver_impl_api.html
@@ -74,7 +70,6 @@ compile-typespec:
 		--py biokbase/$(SERVICE_NAME_PY)/client \
 		--js javascript/$(SERVICE_NAME)/Client \
 		$(SERVER_SPEC) lib
-	rm -r Bio # For some strange reason, compile_typespec always creates this directory in the root dir!
 
 include $(TOP_DIR)/tools/Makefile.common.rules
 
