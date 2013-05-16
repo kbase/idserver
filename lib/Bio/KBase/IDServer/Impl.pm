@@ -491,6 +491,7 @@ sub allocate_id_range
     }
 
     $starting_value = $res->{value}->{next_val};
+    $starting_value = 0 unless defined($starting_value);
 
     #END allocate_id_range
     my @_bad_returns;
