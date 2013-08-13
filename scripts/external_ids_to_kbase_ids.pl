@@ -64,9 +64,15 @@ my $input_file;
 
 my $kb = Bio::KBase->new();
 my $idserver = $kb->id_server();
-
+my $help = '';
 my $rc = GetOptions('c=i' => \$column,
-		    'i=s' => \$input_file);
+		    'i=s' => \$input_file,
+                    "help" => \$help,
+                     );
+if ($help) {
+     print $DESCRIPTION;
+     exit 0;
+}
 
 
 (@ARGV == 1 && $rc) or die $usage;
