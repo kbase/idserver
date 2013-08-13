@@ -70,7 +70,7 @@ my $rc = GetOptions('c=i' => \$column,
                     "help" => \$help,
                      );
 if ($help) {
-     print $DESCRIPTION;
+     print $usage;
      exit 0;
 }
 
