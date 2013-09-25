@@ -1,6 +1,7 @@
 use Bio::KBase::IDServer::Impl;
 
 use Bio::KBase::IDServer::Service;
+use Plack::Middleware::CrossOrigin;
 
 
 
@@ -18,4 +19,4 @@ my $server = Bio::KBase::IDServer::Service->new(instance_dispatch => { @dispatch
 
 my $handler = sub { $server->handle_input(@_) };
 
-$handler;
+$handler = Plack::Middleware::CrossOrigin->wrap( $handler, origins => "*", headers => "*");

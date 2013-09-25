@@ -28,6 +28,7 @@ other databases into KBase).
 sub new
 {
     my($class, $url, @args) = @_;
+    
 
     my $self = {
 	client => Bio::KBase::IDServer::Client::RpcClient->new,
@@ -763,7 +764,9 @@ sub _post {
         }
     }
     else {
-        $obj->{id} = $self->id if (defined $self->id);
+        # $obj->{id} = $self->id if (defined $self->id);
+	# Assign a random number to the id if one hasn't been set
+	$obj->{id} = (defined $self->id) ? $self->id : substr(rand(),2);
     }
 
     my $content = $json->encode($obj);

@@ -26,12 +26,13 @@ use MongoDB;
 use strict;
 use base 'Class::Accessor';
 
-__PACKAGE__->mk_accessors(qw(conn db coll_data coll_next));
+__PACKAGE__->mk_accessors(qw(client db coll_data coll_next));
 
 sub _init_instance
 {
     my($self) = @_;
 
+    my $timeout = -1;
     my $host;
     if (my $e = $ENV{KB_DEPLOYMENT_CONFIG})
     {
@@ -39,6 +40,8 @@ sub _init_instance
 	my $c = Config::Simple->new();
 	$c->read($e);
 	$host = $c->param("$service.mongodb-host");
+	my $t = $c->param("$service.mongodb-query-timeout");
+	$timeout = $t if defined($t);
     }
 
     if (!$host)
@@ -47,18 +50,15 @@ sub _init_instance
 	warn "No deployment configuration found; falling back to $host";
     }
 
-    my $conn;
+    print STDERR "Connecting to mongo host=$host timeout=$timeout\n";
 
-    try {
-	$conn = MongoDB::Connection->new(host => $host);
-    } catch {
-	die "Error connecting to MongoDB server on $host: $_";
-    };
+    my $client = MongoDB::MongoClient->new(host => $host, query_timeout => $timeout);
+    $client->connect();
 
-    my $db = $conn->idserver_db;
-    my $coll_data = $db->data;
-    my $coll_next = $db->next;
-    $self->conn($conn);
+    my $db = $client->get_database('idserver_db');
+    my $coll_data = $db->get_collection('data');
+    my $coll_next = $db->get_collection('next');
+    $self->client($client);
     $self->db($db);
     $self->coll_data($coll_data);
     $self->coll_next($coll_next);
@@ -352,7 +352,7 @@ sub register_ids
 	delete $to_allocate{$id};
     }
 
-	print STDERR "This is a check that this version is being user\n";
+    # print STDERR "This is a check that this version is being user\n";
 #    print STDERR "After initial check " . Dumper(\%to_allocate, $return);
             
     #
