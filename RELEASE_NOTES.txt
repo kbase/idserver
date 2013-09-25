@@ -5,6 +5,15 @@ The KBase ID service provides access to the mappings between KBase
 identifiers and external identifiers (the original identifiers for
 data that was migrated from other databases into KBase).
 
+CHANGES - 9/25/2013
+-------------------
+
+Change service code to use MongoDB::MongoClient instead of the deprecated
+MongoDB::Cursor. 
+
+Add configuration variable mongodb-query-timeout to set the query timeout
+parameter on the mongodb connection. Default the value to -1: wait forever.
+
 CHANGES - 8/8/2013
 ------------------
 
