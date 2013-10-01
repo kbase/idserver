@@ -32,7 +32,8 @@ sub _init_instance
 {
     my($self) = @_;
 
-    my $timeout = -1;
+    my $query_timeout = -1;
+    my $connection_timeout = 0;
     my $host;
     if (my $e = $ENV{KB_DEPLOYMENT_CONFIG})
     {
@@ -40,8 +41,10 @@ sub _init_instance
 	my $c = Config::Simple->new();
 	$c->read($e);
 	$host = $c->param("$service.mongodb-host");
-	my $t = $c->param("$service.mongodb-query-timeout");
-	$timeout = $t if defined($t);
+	my $t = $c->param("$service.mongodb-connection-timeout");
+	$connection_timeout = $t if defined($t);
+	$t = $c->param("$service.mongodb-query-timeout");
+	$query_timeout = $t if defined($t);
     }
 
     if (!$host)
@@ -50,10 +53,12 @@ sub _init_instance
 	warn "No deployment configuration found; falling back to $host";
     }
 
-    print STDERR "Connecting to mongo host=$host timeout=$timeout\n";
+    print STDERR "Connecting to mongo host=$host query_timeout=$query_timeout connection_timeout=$connection_timeout\n";
 
-    my $client = MongoDB::MongoClient->new(host => $host, query_timeout => $timeout);
-    $client->connect();
+    my $client = MongoDB::MongoClient->new(host => $host, query_timeout => $query_timeout,
+					   timeout => $connection_timeout,
+					   auto_reconnect => 1,
+					   auto_connect => 1);
 
     my $db = $client->get_database('idserver_db');
     my $coll_data = $db->get_collection('data');
