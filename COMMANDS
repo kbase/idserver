@@ -1,2 +1,2 @@
-#group-name	id_server	ID Server
+#group-name	id_server	ID Server Commands
 #command-set	scripts/(.*).pl	id_server
