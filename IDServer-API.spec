@@ -79,5 +79,9 @@ Does not return a value.
     funcdef register_allocated_ids(kbase_id_prefix prefix, external_db db_name, 
     	    	   		   mapping<external_id ext_id, int idx> assignments) returns();
 
+/*
+Return the default prefix for new identifiers for this installation of the ID server.
+*/
+    funcdef get_identifier_prefix() returns (string prefix);
 
 };

@@ -12,6 +12,7 @@ SERVICE_NAME = IDServer
 SERVICE_PSGI_FILE = $(SERVICE_NAME).psgi
 SERVICE_NAME_PY = idserver
 SERVICE_PORT = 7031
+SERVICE_URL = http://localhost:$(SERVICE_PORT)
 
 # Needed if we are using Makefile directly, instead of from
 # the dev_container
@@ -69,6 +70,7 @@ compile-typespec:
 		--client Bio::KBase::$(SERVICE_NAME)::Client \
 		--py biokbase/$(SERVICE_NAME_PY)/client \
 		--js javascript/$(SERVICE_NAME)/Client \
+		--url $(SERVICE_URL) \
 		$(SERVER_SPEC) lib
 
 include $(TOP_DIR)/tools/Makefile.common.rules

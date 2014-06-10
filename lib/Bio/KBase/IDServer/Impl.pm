@@ -35,6 +35,7 @@ sub _init_instance
     my $query_timeout = -1;
     my $connection_timeout = 0;
     my $host;
+    my $prefix = "kb";
     if (my $e = $ENV{KB_DEPLOYMENT_CONFIG})
     {
 	my $service = $ENV{KB_SERVICE_NAME};
@@ -45,7 +46,10 @@ sub _init_instance
 	$connection_timeout = $t if defined($t);
 	$t = $c->param("$service.mongodb-query-timeout");
 	$query_timeout = $t if defined($t);
+ 	my $p = $c->param("$service.identifier-prefix");
+        $prefix = $p if $p ne '';
     }
+    $self->{identifier_prefix} = $prefix;
 
     if (!$host)
     {
@@ -589,6 +593,64 @@ sub register_allocated_ids
 
     #END register_allocated_ids
     return();
+}
+
+
+
+
+=head2 get_identifier_prefix
+
+  $prefix = $obj->get_identifier_prefix()
+
+=over 4
+
+=item Parameter and return types
+
+=begin html
+
+<pre>
+$prefix is a string
+
+</pre>
+
+=end html
+
+=begin text
+
+$prefix is a string
+
+
+=end text
+
+
+
+=item Description
+
+Return the default prefix for new identifiers for this installation of the ID server.
+
+=back
+
+=cut
+
+sub get_identifier_prefix
+{
+    my $self = shift;
+
+    my $ctx = $Bio::KBase::IDServer::Service::CallContext;
+    my($prefix);
+    #BEGIN get_identifier_prefix
+
+    $prefix = $self->{identifier_prefix};
+
+    #END get_identifier_prefix
+    my @_bad_returns;
+    (!ref($prefix)) or push(@_bad_returns, "Invalid type for return variable \"prefix\" (value was \"$prefix\")");
+    if (@_bad_returns) {
+	my $msg = "Invalid returns passed to get_identifier_prefix:\n" . join("", map { "\t$_\n" } @_bad_returns);
+	Bio::KBase::Exceptions::ArgumentValidationError->throw(error => $msg,
+							       method_name => 'get_identifier_prefix');
+    }
+    return($prefix);
 }
 
 
