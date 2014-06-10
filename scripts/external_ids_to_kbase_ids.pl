@@ -55,18 +55,19 @@ Input lines that cannot be extended are written to stderr.
 
 my $usage = "usage: external_ids_to_kbase_ids [-c column] DB-name < input > output\n";
 
-use Bio::KBase;
+use Bio::KBase::IDServer::Client;
 use Bio::KBase::Utilities::ScriptThing;
 
 my $column;
 
 my $input_file;
 
-my $kb = Bio::KBase->new();
-my $idserver = $kb->id_server();
 my $help = '';
+my $url;
+
 my $rc = GetOptions('c=i' => \$column,
 		    'i=s' => \$input_file,
+		    'url=s' => \$url,
                     "help" => \$help,
                      );
 if ($help) {
@@ -76,6 +77,8 @@ if ($help) {
 
 
 (@ARGV == 1 && $rc) or die $usage;
+
+my $idserver = Bio::KBase::IDServer::Client->new($url);
 
 my $ext_db = shift;
 
